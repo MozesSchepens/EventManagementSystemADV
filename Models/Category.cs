@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EventManagementSystemADV.Models
 {
@@ -8,7 +7,9 @@ namespace EventManagementSystemADV.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(50)]
         public string Name { get; set; }
+
+        public ICollection<Event> Events { get; set; }
     }
 }

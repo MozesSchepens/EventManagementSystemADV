@@ -1,11 +1,13 @@
-﻿namespace EventManagementSystemADV.Models
+﻿using System.Collections.Generic;
+
+namespace EventManagementSystemADV.Models
 {
     public class Volunteer
     {
         public int Id { get; set; }
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty; 
-        public string FullName => $"{FirstName} {LastName}";
+        public string FullName { get; set; }
+        public string Email { get; set; }
+
+        public ICollection<Event> Events { get; set; } = new List<Event>();
     }
 }

@@ -1,38 +1,26 @@
 ﻿@model IEnumerable<EventManagementSystemADV.Models.Event>
 
-<h2>Events</h2>
-
 <table class="table">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Date</th>
-            <th>Volunteers</th>
-            <th>Actions</th>
+            <th>Naam</th>
+            <th>Categorie</th>
+            <th>Datum</th>
+            <th>Acties</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Category</td>
-                <td>@item.Date.ToString("d")</td>
-                <td>
-                    @foreach (var volunteer in item.Volunteers)
-                    {
-                            <span>@volunteer.FullName</span>
-
-                        <br />
-                    }
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@(item.Category?.Name ?? "Geen categorie")</td> <!-- Controleer op null -->
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Verwijderen</a>
+                    </td>
+                </tr>
         }
-</tbody>
-
+    </tbody>
 </table>

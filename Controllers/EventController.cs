@@ -1,49 +1,70 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EventManagementSystemADV.Data;
+﻿using EventManagementSystemADV.Data;
 using EventManagementSystemADV.Models;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementSystemADV.Controllers
 {
-    public class EventsController : Controller
+    public class EventController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public EventsController(ApplicationDbContext context)
+        public EventController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string category, DateTime? startDate, DateTime? endDate)
         {
-            var events = _context.Events.Include(e => e.Category).Include(e => e.Volunteers);
-            return View(await events.ToListAsync());
-        }
+            var query = _context.Events
+                .Include(e => e.Category)
+                .Include(e => e.Volunteers)
+                .Where(e => !e.IsDeleted)
+                .AsQueryable();
 
-        public IActionResult Create()
-        {
-            ViewData["CategoryId"] = _context.Categories.ToList();
-            ViewData["Volunteers"] = _context.Volunteers.ToList();
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Event @event, int[] volunteerIds)
-        {
-            if (ModelState.IsValid)
+            if (!string.IsNullOrEmpty(category))
             {
-                @event.Volunteers = _context.Volunteers.Where(v => volunteerIds.Contains(v.Id)).ToList();
-                _context.Add(@event);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                query = query.Where(e => e.Category.Name == category);
             }
 
-            ViewData["CategoryId"] = _context.Categories.ToList();
-            ViewData["Volunteers"] = _context.Volunteers.ToList();
-            return View(@event);
+            if (startDate.HasValue)
+            {
+                query = query.Where(e => e.Date >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(e => e.Date <= endDate.Value);
+            }
+
+            var events = await query.ToListAsync();
+            ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "Name", "Name");
+            return View(events);
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var eventDetails = await _context.Events
+                .Include(e => e.Category)
+                .Include(e => e.Volunteers)
+                .FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+
+            if (eventDetails == null) return NotFound();
+
+            return View(eventDetails);
+        }
+
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var eventToDelete = await _context.Events.FindAsync(id);
+            if (eventToDelete != null)
+            {
+                eventToDelete.IsDeleted = true; 
+                _context.Update(eventToDelete);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
         }
     }
 }

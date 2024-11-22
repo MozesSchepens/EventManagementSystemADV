@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EventManagementSystemADV.Models;
 using EventManagementSystemADV.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementSystemADV.Controllers
 {
@@ -15,8 +16,11 @@ namespace EventManagementSystemADV.Controllers
 
         public IActionResult Index()
         {
-            var events = _context.Events.ToList(); 
-            return View(events); 
+            var events = _context.Events
+                .Include(e => e.Category) 
+                .Where(e => !e.IsDeleted) 
+                .ToList();
+            return View(events);
         }
     }
 }
