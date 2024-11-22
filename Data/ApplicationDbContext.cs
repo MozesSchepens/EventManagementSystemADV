@@ -14,13 +14,23 @@ namespace EventManagementSystemADV.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Category> Categories { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
+            base.OnModelCreating(modelBuilder);
 
-            builder.Entity<Event>()
-                .Property(e => e.IsDeleted)
-                .HasDefaultValue(false);
+            modelBuilder.Entity<EventVolunteer>()
+                .HasKey(ev => new { ev.EventId, ev.VolunteerId });
+
+            modelBuilder.Entity<EventVolunteer>()
+                .HasOne(ev => ev.Event)
+                .WithMany(e => e.EventVolunteers)
+                .HasForeignKey(ev => ev.EventId);
+
+            modelBuilder.Entity<EventVolunteer>()
+                .HasOne(ev => ev.Volunteer)
+                .WithMany(v => v.EventVolunteers)
+                .HasForeignKey(ev => ev.VolunteerId);
         }
+
     }
 }

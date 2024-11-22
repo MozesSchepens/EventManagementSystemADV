@@ -19,6 +19,8 @@ namespace EventManagementSystemADV.Models
 
         public bool IsDeleted { get; set; }
         public ICollection<Volunteer> Volunteers { get; set; } = new List<Volunteer>();
+        public ICollection<EventVolunteer> EventVolunteers { get; set; }
+
 
     }
 }
